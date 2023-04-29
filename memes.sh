@@ -4,7 +4,6 @@ mkdir /tmp/memes
 # Fetch the RSS feed and save it to a file
 curl -H 'User-Agent: Mozilla/5.0' "https://dhusch.de/rss-bridge/?action=display&bridge=RedditBridge&context=single&r=memes&f=&score=&d=hot&search=&format=Json" > /tmp/memes/memes.json
 
-
 # read the JSON file into a variable
 json=$(cat /tmp/memes/memes.json)
 
@@ -14,7 +13,8 @@ item=$(echo "$json" | jq '.items[0]')
 # extract the title and URL
 title=$(echo "$item" | jq -r '.title')
 url=$(echo "$item" | jq -r '.url')
-tags=$(echo "$item" | jq -r '.tags')
+
+tags=$(echo "$item" | jq -r '.tags') # Needed for NSFW check
 
 # extract the image URL from the content_html
 content_html=$(echo "$item" | jq -r '.content_html')
@@ -36,9 +36,8 @@ MEDIA_ID=$(curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
              "$INSTANCE_URL/api/v1/media" \
              | jq -r '.id')
 
+if [ "$tags" = "null" ]; then # Check if the Post is NSFW
 
-
-if [ "$tags" = "null" ]; then
 # Post the status with the image
 curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
      -F "status=$title
@@ -47,6 +46,7 @@ curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
      -F "media_ids[]=$MEDIA_ID" \
      "$INSTANCE_URL/api/v1/statuses"
 else
+
 # Post the status with the image and make it NSFW
 curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
      -F "status=$title 
