@@ -42,7 +42,7 @@ if [ "$tags" = "null" ]; then # Check if the Post is NSFW
 curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
      -F "status=$title
 
-($url)" \
+($url) #SFW" \
      -F "media_ids[]=$MEDIA_ID" \
      "$INSTANCE_URL/api/v1/statuses"
 else
@@ -51,7 +51,7 @@ else
 curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
      -F "status=$title 
 
-($url)" \
+($url) #NSFW" \
      -F "spoiler_text=NSFW Meme" \
      -F "media_ids[]=$MEDIA_ID" \
      "$INSTANCE_URL/api/v1/statuses"
