@@ -52,7 +52,7 @@ curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
      -F "status=$title 
 
 ($url) #NSFW" \
-     -F "spoiler_text=NSFW Meme" \
+     -F "sensitive=true" \
      -F "media_ids[]=$MEDIA_ID" \
      "$INSTANCE_URL/api/v1/statuses"
 fi
