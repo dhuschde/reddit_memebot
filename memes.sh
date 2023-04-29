@@ -26,7 +26,7 @@ wget "$image_url" -N -P /tmp/    # Download the image and save to the output fil
 
 # Resize Files larger that 8 MB
 if [ $(du -m /tmp/$filename | awk '{print $1}') -gt 8 ]; then # Check if the file size is greater than 8 MB
-    ffmpeg -i /tmp/$filename -fs 8M /tmp/ff.$filename # Resize the file to 50% of its original size using FFMPEG (needs to be installed)
+    ffmpeg -i /tmp/$filename -fs 8M /tmp/ff.$filename # Resize the file to 8MB using FFMPEG (needs to be installed)
     mv /tmp/ff.$filename /tmp/$filename
 fi
 
