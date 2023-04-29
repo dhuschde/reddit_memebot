@@ -14,6 +14,7 @@ item=$(echo "$json" | jq '.items[0]')
 # extract the title and URL
 title=$(echo "$item" | jq -r '.title')
 url=$(echo "$item" | jq -r '.url')
+tags=$(echo "$item" | jq -r '.tags')
 
 # extract the image URL from the content_html
 content_html=$(echo "$item" | jq -r '.content_html')
@@ -35,6 +36,9 @@ MEDIA_ID=$(curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
              "$INSTANCE_URL/api/v1/media" \
              | jq -r '.id')
 
+
+
+if [ "$tags" = "null" ]; then
 # Post the status with the image
 curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
      -F "status=$title
@@ -42,4 +46,13 @@ curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
 ($url)" \
      -F "media_ids[]=$MEDIA_ID" \
      "$INSTANCE_URL/api/v1/statuses"
+else
+# Post the status with the image and make it NSFW
+curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
+     -F "status=$title 
 
+($url)" \
+     -F "spoiler_text=NSFW Meme" \
+     -F "media_ids[]=$MEDIA_ID" \
+     "$INSTANCE_URL/api/v1/statuses"
+fi
