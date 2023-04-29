@@ -24,6 +24,12 @@ image_url=$(echo "$content_html" | grep -oP '(?<=src=")[^"]+(?=")')
 filename=$(basename "$image_url")     # Extract the filename from the URL
 wget "$image_url" -N -P /tmp/    # Download the image and save to the output file
 
+# Resize Files larger that 8 MB
+file_size=$(du -m /tmp/$filename | awk '{print $1}') # Get the size of the file in megabytes
+if [ "$file_size" -gt 8 ]; then # Check if the file size is greater than 8 MB
+    convert -resize 50% /tmp/$filename /tmp/$filename # Resize the file to 50% of its original size using ImageMagick's (needs to be installed) "convert" command
+fi
+
 # Upload the image and get the media ID
 MEDIA_ID=$(curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
              -F "file=@/tmp/$filename" \
