@@ -25,9 +25,9 @@ filename=$(basename "$image_url")     # Extract the filename from the URL
 wget "$image_url" -N -P /tmp/    # Download the image and save to the output file
 
 # Resize Files larger that 8 MB
-file_size=$(du -m /tmp/$filename | awk '{print $1}') # Get the size of the file in megabytes
-if [ "$file_size" -gt 8 ]; then # Check if the file size is greater than 8 MB
-    convert -resize 50% /tmp/$filename /tmp/$filename # Resize the file to 50% of its original size using ImageMagick's (needs to be installed) "convert" command
+if [ $(du -m /tmp/$filename | awk '{print $1}') -gt 8 ]; then # Check if the file size is greater than 8 MB
+    ffmpeg -i /tmp/$filename -fs 8M /tmp/ff.$filename # Resize the file to 50% of its original size using FFMPEG (needs to be installed)
+    mv /tmp/ff.$filename /tmp/$filename
 fi
 
 # Upload the image and get the media ID
