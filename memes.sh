@@ -15,6 +15,12 @@ item=$(echo "$json" | jq '.items[0]')
 title=$(echo "$item" | jq -r '.title')
 url=$(echo "$item" | jq -r '.url')
 
+# Make sure to stop if the RSS-Bridge is offline or the extraction failed
+if [ -z "$image_url" ]; then
+echo "Image URL is empty, exiting script"
+exit 1
+fi
+
 tags=$(echo "$item" | jq -r '.tags') # Needed for NSFW check
 
 # extract the image URL from the content_html
