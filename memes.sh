@@ -16,10 +16,11 @@ title=$(echo "$item" | jq -r '.title')
 url=$(echo "$item" | jq -r '.url')
 
 # Make sure to stop if the RSS-Bridge is offline or the extraction failed
-if [ -z "$url" ]; then
-echo "URL is empty, exiting script"
+if [ "$url" == "null" ]; then
 exit 1
+INSTANCE_URL="https://failed.dhusch.de" # am not sure if the exit actually works. But don't want the Bot to do anything.
 fi
+
 
 tags=$(echo "$item" | jq -r '.tags') # Needed for NSFW check
 
