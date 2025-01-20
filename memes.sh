@@ -71,6 +71,9 @@ status=$(echo $status | jq -r '.id')
 
 alt=$(curl -X GET "https://mastodon.social/api/v1/statuses/$status/context")
 alt=$(echo $alt | jq '.descendants[] | select(.account.acct == "altbot@fuzzies.wtf" and (.content | contains("generated using Gemini"))) | .content' | head -n 1)
+
+if [ -n "$alt" ]; then
+
 alt=$(echo "$alt" | sed -e 's/<p>/\n/g' -e 's/<\/p>/\n/g' -e 's/<[^>]*>//g' -e 's/@reddit_memebot//')
 alt=$(echo "$alt" | sed 's/  */ /g' | sed 's/^ //;s/ $//')
 alt=$(echo "$alt" | sed 's/^"//;s/"$//')
@@ -89,7 +92,6 @@ alt=$(echo "$alt" | sed 's/PLACEHOLDER_NEWLINE/\n/g')
 echo "Adding alt Text"
 echo $alt
 
-if [ -n "$alt" ]; then
 # bad: using the same code twice
 			if [ "$tags" = "null" ]; then # Check if the Post is NSFW
 
