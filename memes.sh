@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Please fill out!
-INSTANCE_URL="https://botsin.space" # Mastodon Instance
+INSTANCE_URL="https://mastodon.social" # Mastodon Instance
 ACCESS_TOKEN="my_bot_token" # Mastodon Access Token
 SUBREDDIT="memes" # Subreddit (must be Image Only, like r/memes)
 
@@ -35,40 +35,80 @@ if [ $(du -m /tmp/$filename | awk '{print $1}') -gt 8 ]; then # Check if the fil
     mv /tmp/ff.$filename /tmp/$filename
 fi
 
-ffmpeg -i /tmp/$filename /tmp/meme.gen.png
-
-alt=$(ollama run llava "Describe the meme. do not use more than 1000 characters /tmp/meme.gen.png")
-ollama stop llava
-alt=$(echo $alt | sed 's/"//g' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
-echo $alt
-rm /tmp/meme.gen.png
-
 # Upload the image and get the media ID
 MEDIA_ID=$(curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
              -F "file=@/tmp/$filename" \
-             -F "description=AI generated Alt Text: $alt" \
              "$INSTANCE_URL/api/v1/media" \
              | jq -r '.id')
 
 if [ "$tags" = "null" ]; then # Check if the Post is NSFW
 
 # Post the status with the image
-curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
+status=$(curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
      -F "status=$title
 
 ($url) #SFW" \
      -F "media_ids[]=$MEDIA_ID" \
-     "$INSTANCE_URL/api/v1/statuses"
+     "$INSTANCE_URL/api/v1/statuses")
 else
 
 # Post the status with the image and make it NSFW
-curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
+status=$(curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" \
      -F "status=$title
 
 ($url) #NSFW" \
      -F "sensitive=true" \
      -F "media_ids[]=$MEDIA_ID" \
-     "$INSTANCE_URL/api/v1/statuses"
+     "$INSTANCE_URL/api/v1/statuses")
 fi
 
 rm /tmp/$filename # Delete the Image
+
+# Now getting alt text from altbot. | this is temporary until i finally figure stuff out.
+sleep 120
+status=$(echo $status | jq -r '.id')
+
+alt=$(curl -X GET "https://mastodon.social/api/v1/statuses/$status/context")
+alt=$(echo $alt | jq '.descendants[] | select(.account.acct == "altbot@fuzzies.wtf" and (.content | contains("generated using Gemini"))) | .content' | head -n 1)
+alt=$(echo "$alt" | sed -e 's/<p>/\n/g' -e 's/<\/p>/\n/g' -e 's/<[^>]*>//g' -e 's/@reddit_memebot//')
+alt=$(echo "$alt" | sed 's/  */ /g' | sed 's/^ //;s/ $//')
+alt=$(echo "$alt" | sed 's/^"//;s/"$//')
+
+if [ -n "$alt" ]; then
+# bad: using the same code twice
+			if [ "$tags" = "null" ]; then # Check if the Post is NSFW
+
+			# Post the status with the image
+			status_edit=$(curl -X PUT -H "Authorization: Bearer $ACCESS_TOKEN" \
+			     -F "status=$title
+
+			($url) #SFW" \
+			     -F "media_ids[]=$MEDIA_ID" \
+			     -F "media_attributes={\"id\":\"$MEDIA_ID\",\"description\":\"$description\"}" \
+			     "$INSTANCE_URL/api/v1/statuses/$status")
+			else
+
+			# Post the status with the image and make it NSFW
+			status_edit=$(curl -X PUT -H "Authorization: Bearer $ACCESS_TOKEN" \
+			     -F "status=$title
+
+			($url) #NSFW" \
+			     -F "sensitive=true" \
+			     -F "media_ids[]=$MEDIA_ID" \
+			     -F "media_attributes={\"id\":\"$MEDIA_ID\",\"description\":\"$description\"}" \
+			     "$INSTANCE_URL/api/v1/statuses/$status")
+			fi
+
+
+
+
+     
+
+
+else
+
+echo "There is no alt text, not editing the post"
+
+fi
+
+echo $status_edit
