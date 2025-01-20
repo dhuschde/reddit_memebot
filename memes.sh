@@ -78,7 +78,6 @@ alt=$(echo "$alt" | sed -e 's/<p>/\n/g' -e 's/<\/p>/\n/g' -e 's/<[^>]*>//g' -e '
 alt=$(echo "$alt" | sed 's/  */ /g' | sed 's/^ //;s/ $//')
 alt=$(echo "$alt" | sed 's/^"//;s/"$//')
 alt=$(echo "$alt" | sed 's/\\"/"/g')
-alt=$(printf '%q' "$alt")
 
 # Step 1: Replace newlines with a placeholder
 alt=$(echo "$alt" | sed ':a;N;$!ba;s/\n/PLACEHOLDER_NEWLINE/g')
