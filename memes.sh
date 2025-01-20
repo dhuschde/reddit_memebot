@@ -75,6 +75,16 @@ alt=$(echo "$alt" | sed -e 's/<p>/\n/g' -e 's/<\/p>/\n/g' -e 's/<[^>]*>//g' -e '
 alt=$(echo "$alt" | sed 's/  */ /g' | sed 's/^ //;s/ $//')
 alt=$(echo "$alt" | sed 's/^"//;s/"$//')
 alt=$(echo "$alt" | sed 's/\\"/"/g')
+alt=$(printf '%q' "$alt")
+
+# Step 1: Replace newlines with a placeholder
+alt=$(echo "$alt" | sed ':a;N;$!ba;s/\n/PLACEHOLDER_NEWLINE/g')
+
+# Step 2: Escape the string using jq
+alt=$(jq -Rn --arg alt "$alt" '$alt')
+
+# Step 3: Restore newlines
+alt=$(echo "$alt" | sed 's/PLACEHOLDER_NEWLINE/\n/g')
 
 echo "Adding alt Text"
 echo $alt
