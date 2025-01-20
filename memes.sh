@@ -65,6 +65,7 @@ fi
 rm /tmp/$filename # Delete the Image
 
 # Now getting alt text from altbot. | this is temporary until i finally figure stuff out.
+echo "Waiting two minutes to let altbot have time to respond"
 sleep 120
 status=$(echo $status | jq -r '.id')
 
@@ -73,6 +74,10 @@ alt=$(echo $alt | jq '.descendants[] | select(.account.acct == "altbot@fuzzies.w
 alt=$(echo "$alt" | sed -e 's/<p>/\n/g' -e 's/<\/p>/\n/g' -e 's/<[^>]*>//g' -e 's/@reddit_memebot//')
 alt=$(echo "$alt" | sed 's/  */ /g' | sed 's/^ //;s/ $//')
 alt=$(echo "$alt" | sed 's/^"//;s/"$//')
+alt=$(echo "$alt" | sed 's/\\"/"/g')
+
+echo "Adding alt Text"
+echo $alt
 
 if [ -n "$alt" ]; then
 # bad: using the same code twice
@@ -82,9 +87,10 @@ if [ -n "$alt" ]; then
 			status_edit=$(curl -X PUT -H "Authorization: Bearer $ACCESS_TOKEN" \
 			     -F "status=$title
 
-			($url) #SFW" \
+($url) #SFW" \
 			     -F "media_ids[]=$MEDIA_ID" \
-			     -F "media_attributes={\"id\":\"$MEDIA_ID\",\"description\":\"$description\"}" \
+			     -F "media_attributes[][id]=$MEDIA_ID" \
+			     -F "media_attributes[][description]=$alt" \
 			     "$INSTANCE_URL/api/v1/statuses/$status")
 			else
 
@@ -92,10 +98,11 @@ if [ -n "$alt" ]; then
 			status_edit=$(curl -X PUT -H "Authorization: Bearer $ACCESS_TOKEN" \
 			     -F "status=$title
 
-			($url) #NSFW" \
+($url) #NSFW" \
 			     -F "sensitive=true" \
 			     -F "media_ids[]=$MEDIA_ID" \
-			     -F "media_attributes={\"id\":\"$MEDIA_ID\",\"description\":\"$description\"}" \
+			     -F "media_attributes[][id]=$MEDIA_ID" \
+			     -F "media_attributes[][description]=$alt" \
 			     "$INSTANCE_URL/api/v1/statuses/$status")
 			fi
 
