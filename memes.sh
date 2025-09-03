@@ -6,7 +6,7 @@ ACCESS_TOKEN="my_bot_token" # Mastodon Access Token
 SUBREDDIT="memes" # Subreddit (must be Image Only, like r/memes)
 
 # Fetch the JSON feed
-json=$(curl -H 'User-Agent: Mozilla/5.0' "https://bridge.easter.fr/?action=display&bridge=RedditBridge&context=single&r=$SUBREDDIT&f=&score=&d=hot&search=&format=Json" 2>/dev/null)
+json=$(curl -H 'User-Agent: Mozilla/5.0' "https://rss.husch.ovh/?action=display&bridge=RedditBridge&context=single&r=$SUBREDDIT&f=&score=&d=hot&search=&format=Json" 2>/dev/null)
 
 # extract the first item
 item=$(echo "$json" | jq '.items[0]')
@@ -70,7 +70,7 @@ sleep 120
 status=$(echo $status | jq -r '.id')
 
 alt=$(curl -X GET "https://mastodon.social/api/v1/statuses/$status/context")
-alt=$(echo $alt | jq '.descendants[] | select(.account.acct == "altbot@fuzzies.wtf" and (.content | contains("generated using Gemini"))) | .content' | head -n 1)
+alt=$(echo $alt | jq '.descendants[] | select(.account.acct == "altbot@fuzzies.wtf" and (.content | contains("generated privately and locally using"))) | .content' | head -n 1)
 
 if [ -n "$alt" ]; then
 
@@ -91,31 +91,32 @@ alt=$(echo "$alt" | sed 's/PLACEHOLDER_NEWLINE/\n/g')
 echo "Adding alt Text"
 echo $alt
 
-# bad: using the same code twice
-			if [ "$tags" = "null" ]; then # Check if the Post is NSFW
 
-			# Post the status with the image
-			status_edit=$(curl -X PUT -H "Authorization: Bearer $ACCESS_TOKEN" \
-			     -F "status=$title
+# bad: using the same code twice
+                        if [ "$tags" = "null" ]; then # Check if the Post is NSFW
+
+                        # Post the status with the image
+                        status_edit=$(curl -X PUT -H "Authorization: Bearer $ACCESS_TOKEN" \
+                             -F "status=$title
 
 ($url) #SFW" \
-			     -F "media_ids[]=$MEDIA_ID" \
-			     -F "media_attributes[][id]=$MEDIA_ID" \
-			     -F "media_attributes[][description]=$alt" \
-			     "$INSTANCE_URL/api/v1/statuses/$status")
-			else
+                             -F "media_ids[]=$MEDIA_ID" \
+                             -F "media_attributes[][id]=$MEDIA_ID" \
+                             -F "media_attributes[][description]=$alt" \
+                             "$INSTANCE_URL/api/v1/statuses/$status")
+                        else
 
-			# Post the status with the image and make it NSFW
-			status_edit=$(curl -X PUT -H "Authorization: Bearer $ACCESS_TOKEN" \
-			     -F "status=$title
+                        # Post the status with the image and make it NSFW
+                        status_edit=$(curl -X PUT -H "Authorization: Bearer $ACCESS_TOKEN" \
+                             -F "status=$title
 
 ($url) #NSFW" \
-			     -F "sensitive=true" \
-			     -F "media_ids[]=$MEDIA_ID" \
-			     -F "media_attributes[][id]=$MEDIA_ID" \
-			     -F "media_attributes[][description]=$alt" \
-			     "$INSTANCE_URL/api/v1/statuses/$status")
-			fi
+                             -F "sensitive=true" \
+                             -F "media_ids[]=$MEDIA_ID" \
+                             -F "media_attributes[][id]=$MEDIA_ID" \
+                             -F "media_attributes[][description]=$alt" \
+                             "$INSTANCE_URL/api/v1/statuses/$status")
+                        fi
 
 
 
