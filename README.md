@@ -1,4 +1,10 @@
-# reddit_memebot
+# Memebot made with n8n
+you can import this bot to your own n8n by using the json file.
+Please change the rss-bridge to your own one.
+
+
+# old:
+## reddit_memebot
 
 The SourceCode behind [@reddit_memebot@mastodon.social](https://mastodon.social/@reddit_memebot)
 
