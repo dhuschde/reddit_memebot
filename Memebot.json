@@ -12,13 +12,13 @@
           "cachedResultName": "models/gemini-flash-latest"
         },
         "text": "Generate an alt-text description, which is a description for people who can't see the image. Be sure to talk about the actual contents of it, do not interpret or assume anything. Start with a general description, then focus on the details. If the image is complex or has many different elements, please try to summarize it in around 5 sentences. If there is any text, state it verbatim. Do not assume genders. Write your alt-text on the next line:",
-        "inputType": "binary",
+        "imageUrls": "={{ $json.imageUrl }}",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1,
       "position": [
-        672,
+        448,
         0
       ],
       "id": "9b1cdf52-79ce-4a87-966a-8ec86ccbe20f",
@@ -77,7 +77,8 @@
       "id": "bab8c886-65d6-465b-9db4-8e124459e0dc",
       "name": "Upload Image",
       "retryOnFail": true,
-      "executeOnce": false,
+      "executeOnce": true,
+      "alwaysOutputData": false,
       "credentials": {
         "httpBearerAuth": {
           "id": "3yJLjOmfgP4pEaKK",
@@ -102,7 +103,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"status\": \"{{ $('RSS Read').item.json.title }}\\n\\n({{ $('RSS Read').item.json.title }})\",\n  \"media_ids\": [\n    \"{{ $json.id }}\"\n  ]\n}\n",
+        "jsonBody": "={\n  \"status\": \"{{ $('RSS Read').item.json.title }}\\n\\n({{ $('RSS Read').item.json.link }})\",\n  \"media_ids\": [\n    \"{{ $json.id }}\"\n  ]\n}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -143,7 +144,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        464,
+        896,
         0
       ],
       "id": "ae6e8993-5cad-4398-9b0e-72c9b78f1d34",
@@ -159,7 +160,7 @@
       "type": "n8n-nodes-base.crypto",
       "typeVersion": 1,
       "position": [
-        896,
+        672,
         0
       ],
       "id": "4a1f1a7d-3e08-475a-99c0-6dca4560aad6",
@@ -174,7 +175,7 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        0,
+        32,
         0
       ],
       "id": "96e26311-ba0d-4137-a0b7-81acbd91e127",
@@ -203,7 +204,28 @@
       "name": "Schedule Trigger"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "Schedule Trigger": [
+      {
+        "json": {
+          "timestamp": "2025-12-11T12:00:59.017-05:00",
+          "Readable date": "December 11th 2025, 12:00:59 pm",
+          "Readable time": "12:00:59 pm",
+          "Day of week": "Thursday",
+          "Year": "2025",
+          "Month": "December",
+          "Day of month": "11",
+          "Hour": "12",
+          "Minute": "00",
+          "Second": "59",
+          "Timezone": "America/New_York (UTC-05:00)"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
   "connections": {
     "Analyze an image": {
       "main": [
@@ -220,7 +242,7 @@
       "main": [
         [
           {
-            "node": "Download Image",
+            "node": "Analyze an image",
             "type": "main",
             "index": 0
           }
@@ -242,7 +264,7 @@
       "main": [
         [
           {
-            "node": "Analyze an image",
+            "node": "Upload Image",
             "type": "main",
             "index": 0
           }
@@ -253,7 +275,7 @@
       "main": [
         [
           {
-            "node": "Upload Image",
+            "node": "Download Image",
             "type": "main",
             "index": 0
           }
@@ -287,7 +309,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "b47dad07-28cb-42ea-9973-0311b2825732",
+  "versionId": "145ebc51-2ed1-4135-9954-59ba5b1f813b",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "20a72c777fdd0d77d5ad72a51179a06b6bcb946f6b9ad6ad9eda8698d56252f0"
